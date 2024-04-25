@@ -2,6 +2,7 @@ package br.com.andersonmatte.emprestimo.service;
 
 import br.com.andersonmatte.emprestimo.dto.PessoaDTO;
 import br.com.andersonmatte.emprestimo.entity.Pessoa;
+import br.com.andersonmatte.emprestimo.exception.ResourceNotFoundException;
 import br.com.andersonmatte.emprestimo.mapper.PessoaMapper;
 import br.com.andersonmatte.emprestimo.repository.PessoaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +44,25 @@ public class PessoaService {
                 .orElse(null);
     }
 
+    public void excluirPessoa(Long id) {
+        // Verificar se existe no BD
+        Pessoa pessoa = verificarExistenciaPessoa(id);
+        // Excluir no BD
+        pessoaRepository.delete(pessoa);
+    }
+
+    public PessoaDTO editarPessoa(Long id, PessoaDTO pessoaDTO) {
+        // Verificar se existe no BD
+        Pessoa pessoa = verificarExistenciaPessoa(id);
+        // Atualizar pessoa com base no DTO
+        pessoa.setNome(pessoaDTO.getNome());
+        pessoa.setIdentificador(pessoaDTO.getIdentificador());
+        // Salvar no BD
+        pessoa = pessoaRepository.save(pessoa);
+        // Devolver DTO
+        return PessoaMapper.converterEntityParaDTO(pessoa);
+    }
+
     /**
      * Definir limitadores padrão para Pessoa Física
      */
@@ -80,6 +100,15 @@ public class PessoaService {
         pessoa.setTipoIdentificador("AP");
         pessoa.setValorMinParcelas(400.00);
         pessoa.setValorMaxEmprestimo(25000.00);
+        return pessoa;
+    }
+
+    /**
+     * Verificar se a pessoa existe no banco de dados
+     */
+    private Pessoa verificarExistenciaPessoa(Long id) {
+        Pessoa pessoa = pessoaRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Pessoa não encontrada"));
         return pessoa;
     }
 

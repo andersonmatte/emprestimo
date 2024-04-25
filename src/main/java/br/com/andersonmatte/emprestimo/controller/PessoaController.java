@@ -36,4 +36,16 @@ public class PessoaController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> excluirPessoa(@PathVariable Long id) {
+        pessoaService.excluirPessoa(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<PessoaDTO> editarPessoa(@PathVariable Long id, @Valid @RequestBody PessoaDTO pessoaDTO) {
+        PessoaDTO pessoaAtualizadaDTO = pessoaService.editarPessoa(id, pessoaDTO);
+        return new ResponseEntity<>(pessoaAtualizadaDTO, HttpStatus.OK);
+    }
 }
