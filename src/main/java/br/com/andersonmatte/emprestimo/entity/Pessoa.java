@@ -19,4 +19,14 @@ public class Pessoa {
     private double valorMinParcelas;
     private double valorMaxEmprestimo;
 
+    // Construtor padrão sem argumentos
+    public Pessoa() {
+    }
+
+    // Construtor com argumentos id e nome, utilizado somente na classe de testes
+    public Pessoa(Long id, String nome) {
+        this.id = id;
+        this.nome = nome;
+    }
+
 }

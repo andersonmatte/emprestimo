@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/pessoas")
@@ -37,10 +38,20 @@ public class PessoaController {
         }
     }
 
+    @GetMapping
+    public ResponseEntity<List<Pessoa>> getAllPessoas() {
+        List<Pessoa> pessoas = pessoaService.getAllPessoas();
+        if (!pessoas.isEmpty()) {
+            return new ResponseEntity<>(pessoas, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> excluirPessoa(@PathVariable Long id) {
+    public ResponseEntity<String> excluirPessoa(@PathVariable Long id) {
         pessoaService.excluirPessoa(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return ResponseEntity.ok(("Pessoa com id :" + id + " excluída com sucesso!"));
     }
 
     @PutMapping("/{id}")
