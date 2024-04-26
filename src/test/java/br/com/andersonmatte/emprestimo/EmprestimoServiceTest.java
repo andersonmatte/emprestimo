@@ -16,7 +16,7 @@ import java.util.Optional;
 
 import static org.mockito.Mockito.*;
 
-public class EmprestimoServiceTest {
+class EmprestimoServiceTest {
 
     @Mock
     private PessoaRepository pessoaRepository;
@@ -36,7 +36,7 @@ public class EmprestimoServiceTest {
     }
 
     @Test
-    public void testRealizarEmprestimo() {
+    void testRealizarEmprestimo() {
         Pessoa pessoa = new Pessoa();
         pessoa.setId(1L);
         pessoa.setIdentificador("12345128");

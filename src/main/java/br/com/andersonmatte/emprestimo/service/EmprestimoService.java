@@ -60,9 +60,8 @@ public class EmprestimoService {
      * Verificar se a pessoa existe no banco de dados
      */
     private Pessoa validaPessoaExistente(Long pessoaId) {
-        Pessoa pessoa = pessoaRepository.findById(pessoaId)
+        return pessoaRepository.findById(pessoaId)
                 .orElseThrow(() -> new IllegalArgumentException(EmprestimoConstant.PESSOA_NAO_ENCONTRADA));
-        return pessoa;
     }
 
     /**
@@ -162,7 +161,7 @@ public class EmprestimoService {
         String restanteDigitos = identificador.substring(0, identificador.length() - 1);
 
         if (restanteDigitos.indexOf(ultimoDigito) != -1) {
-            throw new IllegalArgumentException(EmprestimoConstant.OUTROS_9_DÍGITOS_DO_IDENTIFICADOR_DE_APOSENTADO);
+            throw new IllegalArgumentException(EmprestimoConstant.MSG_OUTROS_9_DIGITOS_IDENTIFICADOR_APOSENTADO);
         }
     }
 

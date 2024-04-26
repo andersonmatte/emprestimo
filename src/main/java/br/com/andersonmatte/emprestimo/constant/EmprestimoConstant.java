@@ -12,6 +12,6 @@ public class EmprestimoConstant {
     public static final String DEVE_CONTER_8_CARACTERES = "O Identificador de Estudante Universitário deve conter 8 caracteres.";
     public static final String DEVE_SER_IGUAL_A_9 = "A soma do primeiro e último dígito do identificador de Estudante Universitário deve ser igual a 9.";
     public static final String EXATAMENTE_10_CARACTERES = "O número do identificador de Aposentado deve ter exatamente 10 caracteres.";
-    public static final String OUTROS_9_DÍGITOS_DO_IDENTIFICADOR_DE_APOSENTADO = "O último dígito não pode estar presente nos outros 9 dígitos do identificador de Aposentado.";
+    public static final String MSG_OUTROS_9_DIGITOS_IDENTIFICADOR_APOSENTADO = "O último dígito não pode estar presente nos outros 9 dígitos do identificador de Aposentado.";
 
 }

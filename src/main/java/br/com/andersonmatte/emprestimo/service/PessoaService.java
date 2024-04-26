@@ -113,9 +113,8 @@ public class PessoaService {
      * Verificar se a pessoa existe no banco de dados
      */
     private Pessoa verificarExistenciaPessoa(Long id) {
-        Pessoa pessoa = pessoaRepository.findById(id)
+        return pessoaRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Pessoa não encontrada"));
-        return pessoa;
     }
 
 }
