@@ -1,5 +1,6 @@
 package br.com.andersonmatte.emprestimo.service;
 
+import br.com.andersonmatte.emprestimo.constant.EmprestimoConstant;
 import br.com.andersonmatte.emprestimo.entity.Emprestimo;
 import br.com.andersonmatte.emprestimo.entity.Pessoa;
 import br.com.andersonmatte.emprestimo.repository.EmprestimoRepository;
@@ -8,19 +9,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.regex.Pattern;
+
 
 @Service
 public class EmprestimoService {
-
-    public static final String PESSOA_NAO_ENCONTRADA = "Pessoa não encontrada";
-    public static final String VALOR_MAXIMO_PERMITIDO = "Valor do empréstimo ultrapassa o limite máximo permitido";
-    public static final String VALOR_MINIMO_PERMITIDO_PARCELA = "Valor das parcelas é inferior ao mínimo permitido";
-    public static final String O_LIMITE_MAXIMO_24 = "Número de parcelas excede o limite máximo (24)";
     @Autowired
     private PessoaRepository pessoaRepository;
 
     @Autowired
     private EmprestimoRepository emprestimoRepository;
+
+    @Autowired
+    PagamentoService pagamentoService;
 
     public void realizarEmprestimo(Long pessoaId, double valorEmprestimo, int numeroParcelas) {
         // Buscar pessoa
@@ -36,7 +37,7 @@ public class EmprestimoService {
         // Liberado para criar emprestimo
         Emprestimo emprestimo = criarEmprestimo(valorEmprestimo, numeroParcelas, pessoa);
         // Chamar outra API para executar o pagamento
-        chamarServicoPagamento(emprestimo.getId());
+        efetuarPagamento(emprestimo.getId());
     }
 
     /**
@@ -55,10 +56,13 @@ public class EmprestimoService {
         return emprestimo;
     }
 
+
+    /**
+     * Verificar se a pessoa existe no banco de dados
+     */
     private Pessoa validaPessoaExistente(Long pessoaId) {
-        // Verificar se a pessoa existe no banco de dados
         Pessoa pessoa = pessoaRepository.findById(pessoaId)
-                .orElseThrow(() -> new IllegalArgumentException(PESSOA_NAO_ENCONTRADA));
+                .orElseThrow(() -> new IllegalArgumentException(EmprestimoConstant.PESSOA_NAO_ENCONTRADA));
         return pessoa;
     }
 
@@ -67,7 +71,7 @@ public class EmprestimoService {
      */
     private static void validaValorMaximoEmprestimo(double valorEmprestimo, Pessoa pessoa) {
         if (valorEmprestimo > pessoa.getValorMaxEmprestimo()) {
-            throw new IllegalArgumentException(VALOR_MAXIMO_PERMITIDO);
+            throw new IllegalArgumentException(EmprestimoConstant.VALOR_MAXIMO_PERMITIDO);
         }
     }
 
@@ -76,7 +80,7 @@ public class EmprestimoService {
      */
     private static void validaValorParcela(double valorEmprestimo, int numeroParcelas, Pessoa pessoa) {
         if (valorEmprestimo / numeroParcelas < pessoa.getValorMinParcelas()) {
-            throw new IllegalArgumentException(VALOR_MINIMO_PERMITIDO_PARCELA);
+            throw new IllegalArgumentException(EmprestimoConstant.VALOR_MINIMO_PERMITIDO_PARCELA);
         }
     }
 
@@ -85,18 +89,93 @@ public class EmprestimoService {
      */
     private static void validaNumeroParcelas(int numeroParcelas) {
         if (numeroParcelas > 24) {
-            throw new IllegalArgumentException(O_LIMITE_MAXIMO_24);
+            throw new IllegalArgumentException(EmprestimoConstant.O_LIMITE_MAXIMO_24);
         }
     }
 
-    // Método para validar o identificador da pessoa conforme as regras
-    // Realizar validações do identificador da pessoa
+    /**
+     * Método para validar o identificador da pessoa conforme as regras
+     */
     private void validarIdentificador(Pessoa pessoa) {
-        // Implementar validações de identificador conforme especificado
+        String identificador = pessoa.getIdentificador();
+        switch (pessoa.getTipoIdentificador()) {
+            case "PF":
+                // Implementado, mas o serviço de emprestimo não tem entrada para CPF,
+                // seguindo imagem das tabelas conforme documentação!
+                // validarCPF(identificador);
+                break;
+            case "PJ":
+                // Implementado, mas o serviço de emprestimo não tem entrada para CNPJ,
+                // seguindo imagem das tabelas conforme documentação!
+                //validarCNPJ(identificador);
+                break;
+            case "EU":
+                validarEU(identificador);
+                break;
+            case "AP":
+                validarAP(identificador);
+                break;
+            default:
+                throw new IllegalArgumentException(EmprestimoConstant.TIPO_DE_IDENTIFICADOR_INVALIDO);
+        }
     }
 
-    // Método para chamar o serviço de pagamento
-    private void chamarServicoPagamento(Long emprestimoId) {
-        // Implementar a chamada ao serviço de pagamento
+    /**
+     * Validações quando CPF
+     */
+    private void validarCPF(String cpf) {
+        if (!Pattern.matches("\\d{3}\\.\\d{3}\\.\\d{3}\\-\\d{2}", cpf)) {
+            throw new IllegalArgumentException(EmprestimoConstant.CPF_INVALIDO);
+        }
+    }
+
+    /**
+     * Validações quando CNPJ
+     */
+    private void validarCNPJ(String cnpj) {
+        // Implemente as validações para CNPJ aqui
+        if (!Pattern.matches("\\d{2}\\.\\d{3}\\.\\d{3}\\/\\d{4}\\-\\d{2}", cnpj)) {
+            throw new IllegalArgumentException(EmprestimoConstant.CNPJ_INVALIDO);
+        }
+    }
+
+    /**
+     * Validações quando Estudante Universitário
+     */
+    private void validarEU(String identificador) {
+        if (identificador.length() != 8) {
+            throw new IllegalArgumentException(EmprestimoConstant.DEVE_CONTER_8_CARACTERES);
+        }
+
+        int primeiroDigito = Character.getNumericValue(identificador.charAt(0));
+        int ultimoDigito = Character.getNumericValue(identificador.charAt(identificador.length() - 1));
+
+        if (primeiroDigito + ultimoDigito != 9) {
+            throw new IllegalArgumentException(EmprestimoConstant.DEVE_SER_IGUAL_A_9);
+        }
+    }
+
+    /**
+     * Validações quando Aposentado
+     */
+    private void validarAP(String identificador) {
+        if (identificador.length() != 10) {
+            throw new IllegalArgumentException(EmprestimoConstant.EXATAMENTE_10_CARACTERES);
+        }
+
+        char ultimoDigito = identificador.charAt(identificador.length() - 1);
+        String restanteDigitos = identificador.substring(0, identificador.length() - 1);
+
+        if (restanteDigitos.indexOf(ultimoDigito) != -1) {
+            throw new IllegalArgumentException(EmprestimoConstant.OUTROS_9_DÍGITOS_DO_IDENTIFICADOR_DE_APOSENTADO);
+        }
+    }
+
+    /**
+     * Realizar o pagamento do empréstimo
+     */
+    private void efetuarPagamento(Long emprestimoId) {
+        // Chamar o serviço de pagamento
+        pagamentoService.pagarEmprestimo(emprestimoId);
     }
 }
