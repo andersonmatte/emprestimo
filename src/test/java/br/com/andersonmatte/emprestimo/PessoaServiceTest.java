@@ -102,7 +102,7 @@ public class PessoaServiceTest {
         Pessoa pessoa = new Pessoa(null, "João");
         PessoaDTO pessoaDTO = new PessoaDTO();
         pessoaDTO.setNome("João");
-        pessoaDTO.setIdentificador("11");
+        pessoaDTO.setIdentificador("01477539045");
         when(pessoaRepository.save(any(Pessoa.class))).thenReturn(pessoa);
 
         PessoaDTO result = pessoaService.criarPessoa(pessoaDTO);

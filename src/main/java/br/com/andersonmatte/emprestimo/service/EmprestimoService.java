@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
-import java.util.regex.Pattern;
 
 
 @Service
@@ -100,14 +99,10 @@ public class EmprestimoService {
         String identificador = pessoa.getIdentificador();
         switch (pessoa.getTipoIdentificador()) {
             case "PF":
-                // Implementado, mas o serviço de emprestimo não tem entrada para CPF,
-                // seguindo imagem das tabelas conforme documentação!
-                // validarCPF(identificador);
+                validarCPF(identificador);
                 break;
             case "PJ":
-                // Implementado, mas o serviço de emprestimo não tem entrada para CNPJ,
-                // seguindo imagem das tabelas conforme documentação!
-                //validarCNPJ(identificador);
+                validarCNPJ(identificador);
                 break;
             case "EU":
                 validarEU(identificador);
@@ -124,7 +119,7 @@ public class EmprestimoService {
      * Validações quando CPF
      */
     private void validarCPF(String cpf) {
-        if (!Pattern.matches("\\d{3}\\.\\d{3}\\.\\d{3}\\-\\d{2}", cpf)) {
+        if (cpf.length() != 11) {
             throw new IllegalArgumentException(EmprestimoConstant.CPF_INVALIDO);
         }
     }
@@ -134,7 +129,7 @@ public class EmprestimoService {
      */
     private void validarCNPJ(String cnpj) {
         // Implemente as validações para CNPJ aqui
-        if (!Pattern.matches("\\d{2}\\.\\d{3}\\.\\d{3}\\/\\d{4}\\-\\d{2}", cnpj)) {
+        if (cnpj.length() != 14) {
             throw new IllegalArgumentException(EmprestimoConstant.CNPJ_INVALIDO);
         }
     }

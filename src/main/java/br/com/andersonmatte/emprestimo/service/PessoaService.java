@@ -19,17 +19,17 @@ public class PessoaService {
         // Converter DTO para entidade Pessoa
         Pessoa pessoa = PessoaMapper.converterDTOParaEntity(pessoaDTO);
         // Seta os valores padrão conforme o identificador
-        switch (pessoa.getIdentificador()) {
-            case "11":
+        switch (pessoa.getIdentificador().length()) {
+            case 11:
                 definirLimitesPF(pessoa);
                 break;
-            case "14":
+            case 14:
                 definirLimitesPJ(pessoa);
                 break;
-            case "8":
+            case 8:
                 definirLimitesEstudante(pessoa);
                 break;
-            case "10":
+            case 10:
                 definirLimitesAposentado(pessoa);
                 break;
             default:
